@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+
 from scrapers.domvast import Domvast
 from scrapers.beumerutrecht import BeumerUtrecht
 from scrapers.rvl import RVL
@@ -10,12 +12,20 @@ from scrapers.debree import DeBree
 from scrapers.realworks import createRealworksInstances, Realworks
 
 if __name__ == "__main__":
-    pass
-    # print(createRealworksInstances())
+    load_dotenv()
+
     sources = [
-        # Realworks(name="brecheisen", url="https://www.brecheisen.nl")
-        Lauteslager()
+        # Domvast(),
+        # BeumerUtrecht(),
+        RVL(),
+        # Molenbeek(),
+        # Makelaar1(),
+        # Lauteslager(),
+        # Punt(),
+        # DeBree(),
     ]
+
+    # sources.extend(createRealworksInstances())
 
     for source in sources:
         print(source.getName())
