@@ -17,8 +17,8 @@ if __name__ == "__main__":
     sources = [
         # Domvast(),
         # BeumerUtrecht(),
-        RVL(),
-        # Molenbeek(),
+        # RVL(),
+        Molenbeek(),
         # Makelaar1(),
         # Lauteslager(),
         # Punt(),
