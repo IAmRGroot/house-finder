@@ -40,7 +40,7 @@ def notify(message: str) -> bool:
 
     return result
 
-def loop():
+def search():
     print('')
 
     sources = [
@@ -58,7 +58,10 @@ def loop():
 
     ip_response = requests.get('https://ifconfig.me')
 
-    print('Searching the interwebs at ' + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + ' with IP: ' + ip_response.text)
+    message = 'Searching the interwebs at ' + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + ' with IP: ' + ip_response.text
+
+    print(message)
+    notify(message.replace('.', '\\.'))
 
     db = TinyDB('db.json')
 
@@ -85,7 +88,7 @@ def loop():
                     notify(house.toMarkdown())
         except Exception as e:
             print('    ' + str(e))
-            notify('Error in housefinder D:')
+            notify('Error in housefinder at source: ' + source.getName())
 
     print('Done for now :D')
     print('')
@@ -93,16 +96,4 @@ def loop():
 if __name__ == '__main__':
     load_dotenv()
 
-    print('Waiting a few seconds for the VPN to start...')
-    time.sleep(5)
-
-    starttime = time.time()
-    print('Started at: ', starttime)
-
-    interval = 15.0 * 60.0
-    print('Checking every ' + str(interval) + ' seconds')
-
-    while True:
-        loop()
-
-        time.sleep(interval - ((time.time() - starttime) % interval))
+    search()
