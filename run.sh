@@ -3,7 +3,7 @@
 echo "Waiting for the VPN to be up..."
 sleep 5
 
-echo "Running the house-finder every minute..."
+echo "Running the house-finder every ~5 minutes..."
 while [ true ]
 do
     pip install -r requirements.txt && python -u main.py
