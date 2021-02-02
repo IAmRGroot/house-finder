@@ -40,8 +40,41 @@ def notify(message: str) -> bool:
 
     return result
 
+def ping():
+    got_ip = False
+
+    while got_ip == False:
+        try:
+            ip = requests.get('https://ifconfig.me').text
+            got_ip = True
+        except Exception as e:
+            print(e)
+
+    message = 'Hi! I\'m still searching the interwebs at ' + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + ' with IP: ' + ip
+
+    print(message)
+
+    message = message.replace('.', '\\.').replace('!', '\\.')
+
+    db = TinyDB('db.json')
+
+    last_notified = db.get(where('action') == 'last_notified')
+
+    if last_notified is None:
+        notify(message)
+        db.insert({'action': 'last_notified', 'time': time.time()})
+    else:
+        days = (time.time() - last_notified['time']) / 86400
+
+        if days > 1:
+            notify(message)
+            db.update(({'time': time.time()}, where('action') == 'last_notified'))
+
+
 def search():
     print('')
+
+    ping()
 
     sources = [
         Domvast(),
@@ -56,15 +89,8 @@ def search():
 
     sources.extend(createRealworksInstances())
 
-    ip_response = requests.get('https://ifconfig.me')
-
-    message = 'Searching the interwebs at ' + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + ' with IP: ' + ip_response.text
-
-    print(message)
-    notify(message.replace('.', '\\.'))
-
     db = TinyDB('db.json')
-
+    
     for source in sources:
         try:
             print('Searching in ' + source.getName())
@@ -76,8 +102,9 @@ def search():
 
             for house in new_houses:
                 if house.address is None:
-                    print('    House parsing failed!')
-                    notify('    House parsing failed!')
+                    message = '    House parsing failed!'
+                    print(message)
+                    notify(message)
                     continue
 
                 if db.contains(where('address') == house.address):
@@ -90,7 +117,7 @@ def search():
             print('    ' + str(e))
             notify('Error in housefinder at source: ' + source.getName())
 
-    print('Done for now :D')
+    print('I\'ll be back in a bit :D')
     print('')
 
 if __name__ == '__main__':

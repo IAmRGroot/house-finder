@@ -27,8 +27,13 @@ class DeBree(Scraper):
                 continue
 
             address_div = house_div.find('div', class_='property-information-address')
-            price_div = house_div.find('div', class_='property-information-price').a
+            price_div = house_div.find('div', class_='property-information-price')
 
+            if price_div is None:
+                continue
+
+            # TODO fix
+            price_div = price_div.a
             price = int(price_div.text.replace('€', '').replace(' ', '').replace('.', ''))
 
             if not (225000 <= price <= 325000):
