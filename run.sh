@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-echo "Waiting for the VPN to be up..."
-sleep 5
+echo "Installing requirements..."
+pip install -r requirements.txt
 
 echo "Running the house-finder every ~5 minutes..."
 while [ true ]
 do
-    pip install -r requirements.txt && python -u main.py
+    python -u main.py
     sleep 300
 done
