@@ -3,6 +3,7 @@ import time
 import requests
 import os
 import json
+import locale
 
 from datetime import datetime
 from dotenv import load_dotenv
@@ -64,14 +65,16 @@ def ping():
         notify(message)
         db.insert({'action': 'last_notified', 'time': time.time()})
     else:
-        days = (time.time() - last_notified['time']) / 86400
+        days = (time.time() - last_notified['time']) / 86400.0
 
-        if days > 1:
+        if days > 0.25:
             notify(message)
             db.update(({'time': time.time()}, where('action') == 'last_notified'))
 
 
 def search():
+    locale.setlocale(locale.LC_TIME, 'nl_NL')
+
     print('')
 
     ping()
