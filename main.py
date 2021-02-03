@@ -94,8 +94,6 @@ def search():
 
     sources.extend(createRealworksInstances())
 
-    sources = []
-
     db = TinyDB('db.json')
     
     for source in sources:
