@@ -17,6 +17,7 @@ from scrapers.makelaar1 import Makelaar1
 from scrapers.lauteslager import Lauteslager
 from scrapers.punt import Punt
 from scrapers.debree import DeBree
+from scrapers.dekeizer import DeKeizer
 
 from scrapers.realworks import createRealworksInstances
 
@@ -88,6 +89,7 @@ def search():
         Lauteslager(),
         Punt(),
         DeBree(),
+        DeKeizer(),
     ]
 
     sources.extend(createRealworksInstances())

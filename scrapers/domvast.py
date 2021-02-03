@@ -15,7 +15,7 @@ class Domvast(Scraper):
 
     def getHtml(self) -> str:
         min, max = self.getPriceRange()
-        print(os.getenv('MIN_SIZE'))
+
         url = 'https://www.domvast.nl/huizen/smartselect.aspx'
         data = {
             'plaatsnaam': 'Utrecht', 

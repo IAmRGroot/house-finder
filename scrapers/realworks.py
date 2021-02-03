@@ -1,4 +1,5 @@
 import requests
+import os
 
 from scraper import Scraper
 from house import House
@@ -18,6 +19,35 @@ class Realworks(Scraper):
     def __init__(self, name: str, url: str):
         self.url = url
         self.name = name
+        
+        min, max = self.getPriceRange()
+        self.min = str(min)
+        self.max = str(max)
+
+        self.size = self.getMinSize()
+
+    def getMinSize(self) -> int:
+        return os.getenv('MIN_SIZE')
+
+    def getPossiblePrices(self) -> list[int]:
+        return [
+            75000,
+            100000,
+            125000,
+            150000,
+            175000,
+            200000,
+            225000,
+            250000,
+            275000,
+            300000,
+            325000,
+            350000,
+            375000,
+            400000,
+            450000,
+            500000,
+        ]
 
     def getName(self):
         return self.name
@@ -28,7 +58,7 @@ class Realworks(Scraper):
 
         houses = []
 
-        html = requests.get(self.url + '/aanbod/woningaanbod/UTRECHT/150000-325000/koop/aantal-80/').text
+        html = requests.get(self.url + '/aanbod/woningaanbod/UTRECHT/+5km/' + self.size + '+woonopp/' + self.min + '-' + self.max + '/koop/aantal-80/').text
 
         soup = BeautifulSoup(html, 'html.parser')
 
@@ -47,11 +77,11 @@ class Realworks(Scraper):
 
             size_span = house_li.find('span', class_='woonoppervlakte')
 
-            size_text = '? m²'
+            size_text = '?'
 
             if size_span is not None:
                 size_span = size_span.find('span', class_='kenmerkValue')
-                size_text = size_span.string.strip()
+                size_text = size_span.string.split()[0]
 
             link_a = house_li.find('a', class_='aanbodEntryLink')
 
@@ -59,7 +89,7 @@ class Realworks(Scraper):
                 House(
                     address=address_span.string,
                     link=self.url + link_a['href'],
-                    price=price_span.string.strip(),
+                    price=self.onlyDigits(price_span.string),
                     size=size_text
                 )
             )

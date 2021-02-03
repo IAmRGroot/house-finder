@@ -8,6 +8,7 @@ from scrapers.makelaar1 import Makelaar1
 from scrapers.lauteslager import Lauteslager
 from scrapers.punt import Punt
 from scrapers.debree import DeBree
+from scrapers.dekeizer import DeKeizer
 
 from scrapers.realworks import createRealworksInstances, Realworks
 
@@ -18,11 +19,12 @@ if __name__ == "__main__":
         # Domvast(),
         # BeumerUtrecht(),
         # RVL(),
-        Molenbeek(),
+        # Molenbeek(),
         # Makelaar1(),
         # Lauteslager(),
         # Punt(),
         # DeBree(),
+        DeKeizer(),
     ]
 
     # sources.extend(createRealworksInstances())
