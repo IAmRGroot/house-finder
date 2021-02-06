@@ -4,32 +4,56 @@ import re
 
 from scraper import Scraper
 from house import House
+from bs4 import BeautifulSoup
 
 class BeumerUtrecht(Scraper):
     url = 'https://beumerutrecht.nl/woningen/'
 
+    def getPossiblePrices(self) -> list[int]:
+        return [
+            75000,
+            100000,
+            150000,
+            250000,
+            350000,
+            450000,
+            550000,
+            650000,
+        ]
+
     def getHouses(self) -> list[House]:
+        urls = self.getDetailsUrls()
+
         houses = []
 
-        response = requests.post(self.url, data=self.getPostData())
+        for url in urls:
+            html = requests.get(url).text
 
-        data = json.loads(response.text)['maps']
+            soup = BeautifulSoup(html, 'html.parser')
 
-        for entry in data:
-            if entry['c'] == 'Beschikbaar':
+            address = soup.find('h1').span.text
 
-                houses.append(
-                    House(
-                        address=entry['d'],
-                        link=self.url + entry['a'],
-                        price=entry['g'].replace('&euro;', '€'),
-                    )
+            price = soup.find('div', {'class': 'wonen__price'})
+            price = self.onlyDigits(price.text)
+            
+            size = soup.find(text='Woonoppervlakte')
+            size = size.find_next('td').text.split()[0]
+
+            houses.append(
+                House(
+                    address=address,
+                    link=url,
+                    price=price,
+                    size=size
                 )
+            )
 
         return houses
 
-    def getPostData(self):
-        return {
+    def getDetailsUrls(self):
+        min, max = self.getPriceRange()
+        
+        post_data = {
             '__live': '1',
             '__templates[]': ['search', 'loop'],
             '__maps': 'all',
@@ -38,9 +62,9 @@ class BeumerUtrecht(Scraper):
             'plaats_postcode': 'Utrecht',
             'radiuscustom': '',
             'typewoning': '',
-            'prijs[min]': '150000',
-            'prijs[max]': '350000',
-            'status[]': None,
+            'prijs[min]': str(min),
+            'prijs[max]': str(max),
+            'status[]':  ['beschikbaar', ''],
             'woningsoort[]': None,
             'liggingen[]': None,
             'buitenruimtes[]': None,
@@ -56,3 +80,13 @@ class BeumerUtrecht(Scraper):
             'subscribe_email': '',
             'orderby': 'custom_order:asc,publicatiedatum:desc',
         }
+
+        response = requests.post(self.url, data=post_data)
+
+        data = json.loads(response.text)['maps']
+
+        urls = list()
+        for entry in data:
+            urls.append(self.url + entry['a'])
+
+        return urls

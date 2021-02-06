@@ -1,7 +1,7 @@
 import re
 
 class House(object):
-    def __init__(self, address, link, price, size = '? m²'):
+    def __init__(self, address, link, price, size):
         self.address = address
         self.link = link
         self.price = price
@@ -14,7 +14,7 @@ class House(object):
         return self.escape(f"""
 {self.link}
 
-{self.size}, {self.price}
+{self.size} m², {self.price}
 """)
 
     def escape(self, text: str) -> str:

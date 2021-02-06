@@ -1,17 +1,28 @@
 import requests
 import re
+import os
 
 from scraper import Scraper
 from house import House
 from bs4 import BeautifulSoup
 
 class Makelaar1(Scraper):
-    url = 'https://www.makelaar1.nl/?minvraagprijs=150000&maxvraagprijs=325000&plaats=utrecht&keuze=zoeken&straalkm=10&typeobject=koop'
+    def getPriceRange(self) -> (int, int):
+        return (os.getenv('MIN'), os.getenv('MAX'))
+
+    def getMinSize(self) -> int:
+        return os.getenv('MIN_SIZE')
+
+    def getMainUrl(self) -> str:
+        min, max = self.getPriceRange()
+        size = self.getMinSize()
+
+        return 'https://www.makelaar1.nl/?minvraagprijs=' + min + '&maxvraagprijs=' + max + '&plaats=utrecht&straalkm=10&typeobject=koop&keuze=zoeken&woonopp=' + size
 
     def getHouses(self) -> list[House]:
         houses = []
 
-        html = requests.get(self.url).text
+        html = requests.get(self.getMainUrl()).text
 
         soup = BeautifulSoup(html, 'html.parser')
 
@@ -22,7 +33,7 @@ class Makelaar1(Scraper):
             last_page = option
 
         for page in range(1, int(last_page['value']) + 1):
-            html = requests.get(self.url + '&page2=' + str(page)).text
+            html = requests.get(self.getMainUrl() + '&page2=' + str(page)).text
 
             soup = BeautifulSoup(html, 'html.parser')
 
@@ -40,9 +51,9 @@ class Makelaar1(Scraper):
                 houses.append(
                     House(
                         address=address_div.text,
-                        link=link_div.a['href'],
-                        price=price_div.text.strip(),
-                        size=size_div[9:]
+                        link=link_div.a['href'].split('?')[0],
+                        price=self.onlyDigits(price_div.text.strip()),
+                        size=size_div[9:].split()[0]
                     )
                 )
 
