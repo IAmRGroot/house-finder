@@ -70,7 +70,7 @@ def ping():
 
         if days > 0.25:
             notify(message)
-            db.update(({'time': time.time()}, where('action') == 'last_notified'))
+            db.update({'time': time.time()}, where('action') == 'last_notified')
 
 
 def search():
