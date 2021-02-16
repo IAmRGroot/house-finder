@@ -43,14 +43,10 @@ def notify(message: str) -> bool:
     return result
 
 def ping():
-    got_ip = False
-
-    while got_ip == False:
-        try:
-            ip = requests.get('https://ifconfig.me').text
-            got_ip = True
-        except Exception as e:
-            print(e)
+    try:
+        ip = requests.get('https://ifconfig.me').text
+    except Exception as e:
+        ip = '?'
 
     message = 'Hi! I\'m still searching the interwebs at ' + datetime.now().strftime("%m/%d/%Y, %H:%M:%S") + ' with IP: ' + ip
 
@@ -58,20 +54,21 @@ def ping():
 
     message = message.replace('.', '\\.').replace('!', '\\.')
 
-    db = TinyDB('db.json')
+    try:
+        db = TinyDB('db.json')
 
-    last_notified = db.get(where('action') == 'last_notified')
-
-    if last_notified is None:
-        notify(message)
-        db.insert({'action': 'last_notified', 'time': time.time()})
-    else:
-        days = (time.time() - last_notified['time']) / 86400.0
-
-        if days > 0.25:
+        last_notified = db.get(where('action') == 'last_notified')
+        if last_notified is None:
             notify(message)
-            db.update({'action': 'last_notified', 'time': time.time()}, where('action') == 'last_notified')
+            db.insert({'action': 'last_notified', 'time': time.time()})
+        else:
+            days = (time.time() - last_notified['time']) / 86400.0
 
+            if days > 0.25:
+                notify(message)
+                db.update({'action': 'last_notified', 'time': time.time()}, where('action') == 'last_notified')
+    except Exception as e:
+        print(e)
 
 def search():
     locale.setlocale(locale.LC_TIME, 'nl_NL')
